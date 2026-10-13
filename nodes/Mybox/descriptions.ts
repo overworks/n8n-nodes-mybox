@@ -1,6 +1,7 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { fileProperties } from './fileDescriptions';
 import { managementProperties } from './managementDescriptions';
+import { trashProperties } from './trashDescriptions';
 
 const dateFilters: INodeProperties[] = [
 	{
@@ -26,7 +27,7 @@ const dateFilters: INodeProperties[] = [
 	{ displayName: 'Start Date', name: 'startDate', type: 'dateTime', default: '' },
 ];
 
-export const properties: INodeProperties[] = [
+const definitions: INodeProperties[] = [
 	{
 		displayName: 'Resource',
 		name: 'resource',
@@ -37,11 +38,13 @@ export const properties: INodeProperties[] = [
 			{ name: 'File or Folder', value: 'fileFolder' },
 			{ name: 'Folder', value: 'folder' },
 			{ name: 'Storage', value: 'storage' },
+			{ name: 'Trash', value: 'trash' },
 		],
 		default: 'storage',
 	},
 	...fileProperties,
 	...managementProperties,
+	...trashProperties,
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -54,6 +57,12 @@ export const properties: INodeProperties[] = [
 				value: 'get',
 				description: 'Get storage usage, file counts, and upload limits',
 				action: 'Get storage information',
+			},
+			{
+				name: 'Update',
+				value: 'update',
+				description: 'Set the trash auto-delete interval',
+				action: 'Update storage settings',
 			},
 		],
 		default: 'get',
@@ -215,6 +224,24 @@ export const properties: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: { show: { resource: ['file', 'folder'], operation: ['search'] } },
+		options: [
+			{
+				displayName: 'Page Size',
+				name: 'pageSize',
+				type: 'number',
+				default: 100,
+				typeOptions: { minValue: 20, maxValue: 200 },
+				description: 'Number of results requested per search page',
+			},
+		],
+	},
+	{
 		displayName: 'Return All',
 		name: 'returnAll',
 		type: 'boolean',
@@ -237,7 +264,7 @@ export const properties: INodeProperties[] = [
 		type: 'collection',
 		placeholder: 'Add Option',
 		default: {},
-		displayOptions: { show: { operation: ['getMany', 'search'] } },
+		displayOptions: { show: { resource: ['fileFolder'], operation: ['getMany'] } },
 		options: [
 			{
 				displayName: 'Page Size',
@@ -245,15 +272,14 @@ export const properties: INodeProperties[] = [
 				type: 'number',
 				default: 100,
 				typeOptions: { minValue: 1, maxValue: 1000 },
-				description:
-					'Results requested per page. Searches automatically use a value between 20 and 200.',
+				description: 'Number of results requested per page',
 			},
 			{
 				displayName: 'Sort',
 				name: 'sort',
 				type: 'options',
 				default: 'name,asc',
-				description: 'The sort order for folder listings. Ignored when searching.',
+				description: 'The sort order for folder listings',
 				options: [
 					{ name: 'Accessed At (Ascending)', value: 'accessedAt,asc' },
 					{ name: 'Accessed At (Descending)', value: 'accessedAt,desc' },
@@ -267,4 +293,11 @@ export const properties: INodeProperties[] = [
 			},
 		],
 	},
+];
+
+// Keep the selectors above operation-specific fields from all resource modules.
+export const properties: INodeProperties[] = [
+	...definitions.filter((property) => property.name === 'resource'),
+	...definitions.filter((property) => property.name === 'operation'),
+	...definitions.filter((property) => !['resource', 'operation'].includes(property.name)),
 ];

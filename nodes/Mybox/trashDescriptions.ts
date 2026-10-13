@@ -1,0 +1,107 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+export const trashProperties: INodeProperties[] = [
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['trash'] } },
+		options: [
+			{
+				name: 'Empty',
+				value: 'empty',
+				description: 'Permanently delete every file and folder in the trash',
+				action: 'Empty the trash',
+			},
+			{
+				name: 'Get Many',
+				value: 'getMany',
+				description: 'List files and folders in the trash',
+				action: 'Get many trash items',
+			},
+			{
+				name: 'Permanently Delete',
+				value: 'delete',
+				description: 'Permanently delete a file or folder from the trash',
+				action: 'Permanently delete a trash item',
+			},
+			{
+				name: 'Restore',
+				value: 'restore',
+				description: 'Restore a file or folder to its original location',
+				action: 'Restore a trash item',
+			},
+		],
+		default: 'getMany',
+	},
+	{
+		displayName: 'Resource ID',
+		name: 'resourceId',
+		type: 'string',
+		default: '',
+		required: true,
+		displayOptions: { show: { resource: ['trash'], operation: ['restore', 'delete'] } },
+		description: 'The resourceId returned by a trash listing',
+	},
+	{
+		displayName: 'Overwrite',
+		name: 'isOverwrite',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { resource: ['trash'], operation: ['restore'] } },
+		description: 'Whether to overwrite a resource with the same name at the original location',
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: { show: { resource: ['trash'], operation: ['getMany'] } },
+		options: [
+			{
+				displayName: 'Page Size',
+				name: 'pageSize',
+				type: 'number',
+				default: 100,
+				typeOptions: { minValue: 1, maxValue: 1000 },
+				description: 'Number of results requested per page',
+			},
+			{
+				displayName: 'Sort',
+				name: 'sort',
+				type: 'options',
+				default: 'deletedAt,desc',
+				options: [
+					{ name: 'Deleted At (Ascending)', value: 'deletedAt,asc' },
+					{ name: 'Deleted At (Descending)', value: 'deletedAt,desc' },
+					{ name: 'Location (Ascending)', value: 'location,asc' },
+					{ name: 'Location (Descending)', value: 'location,desc' },
+					{ name: 'Name (Ascending)', value: 'name,asc' },
+					{ name: 'Name (Descending)', value: 'name,desc' },
+					{ name: 'Size (Ascending)', value: 'size,asc' },
+					{ name: 'Size (Descending)', value: 'size,desc' },
+					{ name: 'Type (Ascending)', value: 'type,asc' },
+					{ name: 'Type (Descending)', value: 'type,desc' },
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Trash Auto-Delete Days',
+		name: 'trashAutoDeleteDays',
+		type: 'options',
+		default: 0,
+		displayOptions: { show: { resource: ['storage'], operation: ['update'] } },
+		options: [
+			{ name: 'Off', value: 0 },
+			{ name: '5 Days', value: 5 },
+			{ name: '15 Days', value: 15 },
+			{ name: '30 Days', value: 30 },
+			{ name: '50 Days', value: 50 },
+		],
+		description:
+			'How long MYBOX retains trash before permanently deleting it. Off disables automatic deletion.',
+	},
+];

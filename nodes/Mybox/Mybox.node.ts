@@ -10,6 +10,7 @@ import { properties } from './descriptions';
 import { readOperation } from './read';
 import { fileOperation } from './files';
 import { managementOperation } from './manage';
+import { trashOperation } from './trash';
 
 export class Mybox implements INodeType {
 	description: INodeTypeDescription = {
@@ -47,7 +48,8 @@ export class Mybox implements INodeType {
 				const result =
 					(await readOperation(this, resource, operation, itemIndex)) ??
 					(resource === 'file' ? await fileOperation(this, operation, itemIndex) : undefined) ??
-					(await managementOperation(this, resource, operation, itemIndex));
+					(await managementOperation(this, resource, operation, itemIndex)) ??
+					(await trashOperation(this, resource, operation, itemIndex));
 				if (result === undefined) {
 					throw new NodeOperationError(this.getNode(), 'This operation is not supported', {
 						itemIndex,
