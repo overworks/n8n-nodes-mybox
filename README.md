@@ -4,7 +4,7 @@
 
 An n8n community node for the NAVER MYBOX Open API, implementing all 20 documented API endpoints and file transfers using n8n binary data.
 
-This package is in development and has not been published to npm. The plan is to complete testing with a real account, make the GitHub repository public, and publish the package to npm. Submission for n8n community node verification will follow the first release.
+This package is in development and has not been published to npm. The GitHub repository is public; npm publishing will follow testing with a real account. Submission for n8n community node verification will follow the first release.
 
 ## Features
 
@@ -85,11 +85,11 @@ Integration testing with a real PAT, service responses, and file transfers has n
 
 1. Implement features and automated tests in a private repository.
 2. Run integration tests with an existing self-hosted n8n instance and a real MYBOX account.
-3. Make the GitHub repository public.
-4. Publish `@overworks/n8n-nodes-mybox` as a public npm package.
+3. Make the GitHub repository public (completed).
+4. Publish `@overworks/n8n-nodes-mybox` as a public npm package through GitHub Actions with provenance.
 5. Apply for n8n community node verification.
 
-The package has `publishConfig.access` set to `public`. An automated release workflow has not been configured yet.
+The package has `publishConfig.access` set to `public`. The [publish workflow](.github/workflows/publish.yml) uses npm Trusted Publishing (OIDC) and runs on version tags. npm-side setup is required before the first release; see the [publishing guide](CONTRIBUTING.md#publishing).
 
 ## References
 

@@ -4,7 +4,7 @@
 
 NAVER MYBOX Open API를 사용하는 n8n 커뮤니티 노드입니다. 공식 문서의 20개 API 엔드포인트와 n8n binary 파일 전송을 구현했습니다.
 
-현재 개발판이며 npm에 배포되지 않았습니다. 실제 계정 테스트 후 GitHub 저장소를 공개하고 npm에 등록할 예정입니다. n8n 커뮤니티 노드 검증 신청은 첫 배포 이후 진행합니다.
+현재 개발판이며 npm에 배포되지 않았습니다. GitHub 저장소는 공개되었으며, 실제 계정 테스트 후 npm에 등록할 예정입니다. n8n 커뮤니티 노드 검증 신청은 첫 배포 이후 진행합니다.
 
 ## 구현된 기능
 
@@ -85,11 +85,11 @@ docker compose restart n8n
 
 1. 비공개 저장소에서 기능 구현 및 자동화 테스트
 2. 기존 자체 호스팅 n8n과 실제 MYBOX 계정으로 통합 테스트
-3. GitHub 저장소 공개
-4. `@overworks/n8n-nodes-mybox`를 공개 npm 패키지로 배포
+3. GitHub 저장소 공개(완료)
+4. GitHub Actions에서 provenance를 포함하여 `@overworks/n8n-nodes-mybox`를 공개 npm 패키지로 배포
 5. n8n 커뮤니티 노드 검증 신청
 
-패키지의 `publishConfig.access`는 `public`으로 설정되어 있습니다. 자동 배포 워크플로는 아직 구성하지 않았습니다.
+패키지의 `publishConfig.access`는 `public`으로 설정되어 있습니다. [배포 워크플로](.github/workflows/publish.yml)는 npm Trusted Publishing(OIDC)을 사용하며 버전 태그를 푸시하면 실행됩니다. 첫 배포 전에 npm 측 설정이 필요하며, 자세한 절차는 [배포 가이드(영문)](CONTRIBUTING.md#publishing)를 참고하세요.
 
 ## 참고 문서
 

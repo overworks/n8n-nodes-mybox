@@ -39,6 +39,18 @@ For code changes, run `npm test` and `npm run lint`. Add or update focused tests
 
 To test the package with a real account, follow the [Docker installation and testing guide](README.md#testing-with-an-existing-docker-n8n-instance) after building the archive.
 
+## Publishing
+
+The [publish workflow](.github/workflows/publish.yml) runs when a version tag such as `v0.1.0` is pushed. The tag must exactly match `v` followed by the version in `package.json`. It checks out the tagged commit, so releases can be made from the `0.x` branch.
+
+The workflow uses Node.js 24 and npm 11, installs dependencies from the lockfile, builds and tests the package, runs lint, and publishes with npm provenance. Stable versions use the `latest` npm tag; prerelease versions such as `0.2.0-beta.1` use `next`.
+
+Before pushing a release tag, complete real-account integration testing and configure npm [Trusted Publishing](https://docs.npmjs.com/trusted-publishers/) for the package. Create the package entry first if it does not yet exist; npm supports this through [staged publishing](https://docs.npmjs.com/staged-publishing/).
+
+Register GitHub Actions as a trusted publisher with owner `overworks`, repository `n8n-nodes-mybox`, and workflow filename `publish.yml`. Allow `npm publish` and leave the environment name empty, since this workflow does not use a GitHub Environment. Authentication uses OIDC and does not require an `NPM_TOKEN` secret. Configure the publisher when ready to release: npm requires its first successful publish within two days of registration.
+
+Commit and push the workflow and release changes before creating and pushing the matching version tag. A regular branch push does not publish the package.
+
 ## Implementation conventions
 
 - Follow the strict TypeScript configuration and existing module boundaries. Formatting uses tabs, single quotes, trailing commas, and a 100-character print width.
