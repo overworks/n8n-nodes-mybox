@@ -7,6 +7,7 @@ function setup(
 		api = async () => ({}),
 		request = async () => ({}),
 		continueOnFail = false,
+		cancelSignal,
 		helpers = {},
 	} = {},
 ) {
@@ -27,6 +28,7 @@ function setup(
 			return typeof value === 'function' ? value(index) : value;
 		},
 		continueOnFail: () => continueOnFail,
+		getExecutionCancelSignal: () => cancelSignal,
 		helpers: {
 			async httpRequestWithAuthentication(credential, options) {
 				calls.push({ credential, ...options });

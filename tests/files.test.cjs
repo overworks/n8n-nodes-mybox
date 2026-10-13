@@ -182,6 +182,28 @@ test('download URL operation returns the ticket without consuming the one-time U
 	assert.equal(h.transfers.length, 0);
 });
 
+test('stream and binary storage errors do not expose the signed download URL', async () => {
+	const h = setup(
+		{ resource: 'file', operation: 'download', fileId: 'a' },
+		{
+			continueOnFail: true,
+			api: async (_request, index) =>
+				index === 0
+					? { name: 'test.txt' }
+					: { downloadUrl: 'https://storage.example.com/?atoken=secret' },
+			request: async () => ({ body: Buffer.from('test'), headers: {} }),
+			helpers: {
+				async prepareBinaryData() {
+					throw new Error('Stream failed at https://storage.example.com/?atoken=secret');
+				},
+			},
+		},
+	);
+	const result = await h.run();
+	assert.match(result[0][0].json.error, /could not be read or stored/);
+	assert.equal(JSON.stringify(result).includes('secret'), false);
+});
+
 test('transfer failures do not expose signed URLs or silently retry single-use requests', async () => {
 	const h = uploader(
 		Buffer.from('test'),

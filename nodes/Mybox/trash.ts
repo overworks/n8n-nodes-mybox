@@ -1,6 +1,6 @@
 import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import { apiRequest, getMany, requiredString, resourceId } from './transport';
+import { apiRequest, booleanParameter, getMany, requiredString, resourceId } from './transport';
 
 export async function trashOperation(
 	context: IExecuteFunctions,
@@ -45,7 +45,7 @@ export async function trashOperation(
 		const path = `/drive/trash/${resourceId(context, rawId)}`;
 		if (operation === 'restore') {
 			const response = await apiRequest(context, 'POST', `${path}/restore`, {
-				body: { isOverwrite: context.getNodeParameter('isOverwrite', itemIndex, false) as boolean },
+				body: { isOverwrite: booleanParameter(context, 'isOverwrite', itemIndex) },
 			});
 			return [{ json: { success: true, resourceId: rawId, ...response } }];
 		}

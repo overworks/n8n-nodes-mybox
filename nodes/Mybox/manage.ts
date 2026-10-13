@@ -1,5 +1,5 @@
 import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
-import { apiRequest, requiredString, resourceId } from './transport';
+import { apiRequest, booleanParameter, requiredString, resourceId } from './transport';
 
 export async function managementOperation(
 	context: IExecuteFunctions,
@@ -41,7 +41,7 @@ export async function managementOperation(
 				? requiredString(context, destination, 'Parent Folder ID').trim()
 				: destination.trim();
 		const body: IDataObject = {
-			isOverwrite: context.getNodeParameter('isOverwrite', itemIndex, false) as boolean,
+			isOverwrite: booleanParameter(context, 'isOverwrite', itemIndex),
 			...(parentId ? { parentId } : {}),
 		};
 		if (operation === 'copy') {

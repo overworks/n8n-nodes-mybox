@@ -65,6 +65,7 @@ export class Mybox implements INodeType {
 						? error
 						: new NodeApiError(this.getNode(), error as JsonObject, { itemIndex });
 				nodeError.context.itemIndex = itemIndex;
+				if (this.getExecutionCancelSignal?.()?.aborted) throw nodeError;
 
 				if (this.continueOnFail()) {
 					returnData.push({

@@ -62,6 +62,16 @@ test('searches have no listing sort field, while trash exposes only its supporte
 });
 
 test('n8n resolves binary, overwrite, retention, and resume defaults correctly', () => {
+	const initial = NodeHelpers.getNodeParameters(
+		description.properties,
+		{},
+		true,
+		false,
+		node,
+		description,
+	);
+	assert.equal(initial.resource, 'storage');
+	assert.equal(initial.operation, 'get');
 	const defaults = (resource, operation, extra = {}) =>
 		NodeHelpers.getNodeParameters(
 			description.properties,

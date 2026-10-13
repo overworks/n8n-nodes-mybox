@@ -1,4 +1,5 @@
 import type {
+	IBinaryData,
 	IDataObject,
 	IExecuteFunctions,
 	IHttpRequestOptions,
@@ -6,7 +7,7 @@ import type {
 	JsonObject,
 } from 'n8n-workflow';
 import { isSafeObjectProperty, NodeApiError, NodeOperationError } from 'n8n-workflow';
-import { apiRequest, requiredString, resourceId } from './transport';
+import { apiRequest, booleanParameter, httpStatus, requiredString, resourceId } from './transport';
 
 function transferUrl(context: IExecuteFunctions, value: unknown): string {
 	try {
@@ -26,12 +27,7 @@ async function transfer(
 		// The URL carries its own authorization. Never attach the PAT to a storage request.
 		return await context.helpers.httpRequest({ timeout: 300000, ...options });
 	} catch (error) {
-		const failure = error as {
-			statusCode?: number;
-			httpCode?: string;
-			response?: { status?: number };
-		};
-		const statusCode = failure?.statusCode ?? failure?.response?.status ?? failure?.httpCode;
+		const statusCode = httpStatus(error);
 		throw new NodeApiError(
 			context.getNode(),
 			{
@@ -70,7 +66,7 @@ function uploadBody(
 	return {
 		fileName: requiredString(context, fileName, 'File Name'),
 		fileSize,
-		isOverwrite: context.getNodeParameter('isOverwrite', itemIndex, false) as boolean,
+		isOverwrite: booleanParameter(context, 'isOverwrite', itemIndex),
 		...(parentId ? { parentId } : {}),
 	};
 }
@@ -87,7 +83,7 @@ export async function fileOperation(
 			context.getNodeParameter('fileName', itemIndex, '') as string,
 			context.getNodeParameter('fileSize', itemIndex, 0) as number,
 		);
-		const resume = context.getNodeParameter('resume', itemIndex, false) as boolean;
+		const resume = booleanParameter(context, 'resume', itemIndex);
 		if (resume) {
 			const modifiedTime = requiredString(
 				context,
@@ -182,11 +178,20 @@ export async function fileOperation(
 		};
 		const contentType = response.headers?.['content-type'];
 		const fileName = typeof metadata.name === 'string' ? metadata.name : 'download';
-		const binary = await context.helpers.prepareBinaryData(
-			response.body,
-			fileName,
-			typeof contentType === 'string' ? contentType.split(';')[0].trim() : undefined,
-		);
+		let binary: IBinaryData;
+		try {
+			binary = await context.helpers.prepareBinaryData(
+				response.body,
+				fileName,
+				typeof contentType === 'string' ? contentType.split(';')[0].trim() : undefined,
+			);
+		} catch {
+			// Stream errors may contain the signed request URL as well.
+			throw new NodeOperationError(
+				context.getNode(),
+				'The downloaded file could not be read or stored',
+			);
+		}
 		return [
 			{
 				json: metadata,
