@@ -1,5 +1,4 @@
 import type {
-	IDataObject,
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
@@ -7,6 +6,8 @@ import type {
 	JsonObject,
 } from 'n8n-workflow';
 import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { properties } from './descriptions';
+import { readOperation } from './read';
 
 export class Mybox implements INodeType {
 	description: INodeTypeDescription = {
@@ -16,7 +17,7 @@ export class Mybox implements INodeType {
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Access your NAVER MYBOX storage',
+		description: 'Manage files and folders in NAVER MYBOX',
 		defaults: {
 			name: 'NAVER MYBOX',
 		},
@@ -29,34 +30,7 @@ export class Mybox implements INodeType {
 				required: true,
 			},
 		],
-		properties: [
-			{
-				displayName: 'Resource',
-				name: 'resource',
-				type: 'options',
-				noDataExpression: true,
-				options: [{ name: 'Storage', value: 'storage' }],
-				default: 'storage',
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: { resource: ['storage'] },
-				},
-				options: [
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get storage usage, file counts, and upload limits',
-						action: 'Get storage information',
-					},
-				],
-				default: 'get',
-			},
-		],
+		properties,
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
@@ -68,24 +42,22 @@ export class Mybox implements INodeType {
 				const resource = this.getNodeParameter('resource', itemIndex) as string;
 				const operation = this.getNodeParameter('operation', itemIndex) as string;
 
-				if (resource !== 'storage' || operation !== 'get') {
+				const result = await readOperation(this, resource, operation, itemIndex);
+				if (result === undefined) {
 					throw new NodeOperationError(this.getNode(), 'This operation is not supported', {
 						itemIndex,
 					});
 				}
 
-				const response = (await this.helpers.httpRequestWithAuthentication.call(this, 'myboxApi', {
-					method: 'GET',
-					url: 'https://open-api.mybox.naver.com/v1/drive/storage',
-					json: true,
-				})) as IDataObject;
-
-				returnData.push({ json: response, pairedItem: { item: itemIndex } });
+				for (const item of result) {
+					returnData.push({ ...item, pairedItem: { item: itemIndex } });
+				}
 			} catch (error) {
 				const nodeError =
-					error instanceof NodeOperationError
+					error instanceof NodeOperationError || error instanceof NodeApiError
 						? error
 						: new NodeApiError(this.getNode(), error as JsonObject, { itemIndex });
+				nodeError.context.itemIndex = itemIndex;
 
 				if (this.continueOnFail()) {
 					returnData.push({

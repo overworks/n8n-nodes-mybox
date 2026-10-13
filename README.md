@@ -8,9 +8,12 @@ NAVER MYBOX Open API를 사용하는 n8n 커뮤니티 노드입니다.
 
 - **NAVER MYBOX API Credential**: 개인 액세스 토큰(PAT) 인증 및 연결 테스트
 - **Storage → Get**: 전체·사용 용량, 파일 종류별 개수, 업로드 가능한 파일 최대 크기, 휴지통 자동 삭제 주기 조회
+- **File or Folder → Get / Get Many**: 속성 조회, 루트 및 특정 폴더의 목록 조회
+- **File / Folder → Search**: 검색어·종류·날짜·폴더 경로 검색
+- 목록과 검색의 커서 페이지네이션, Return All 및 Limit 지원
 - 입력 아이템별 실행, 출력 아이템 연결, n8n의 오류 발생 시 계속 실행 설정 지원
 
-파일·폴더 조회와 검색, 폴더 생성, 업로드·다운로드, 파일 관리 및 휴지통 작업은 후속 구현 대상입니다.
+폴더 생성, 업로드·다운로드, 파일 관리 및 휴지통 작업은 후속 구현 대상입니다.
 
 ## 인증
 
@@ -31,6 +34,7 @@ NAVER MYBOX Open API를 사용하는 n8n 커뮤니티 노드입니다.
 npm ci --ignore-scripts
 npm run build
 npm run lint
+npm test
 npm run dev
 ```
 
