@@ -1,6 +1,6 @@
 {
 	"name": "@overworks/n8n-nodes-mybox",
-	"version": "0.2.0",
+	"version": "0.1.0",
 	"description": "n8n community node for NAVER MYBOX Open API",
 	"license": "MIT",
 	"homepage": "https://github.com/overworks/n8n-nodes-mybox#readme",

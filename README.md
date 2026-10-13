@@ -70,11 +70,11 @@ npm 공개 없이 `.tgz` 파일을 기존 자체 호스팅 n8n에 설치할 수 
 ```sh
 docker compose exec -u node n8n mkdir -p /home/node/.n8n/nodes
 
-docker compose cp overworks-n8n-nodes-mybox-0.2.0.tgz \
+docker compose cp overworks-n8n-nodes-mybox-0.1.0.tgz \
   n8n:/home/node/.n8n/nodes/
 
 docker compose exec -u node -w /home/node/.n8n/nodes n8n \
-  npm install --omit=dev --ignore-scripts ./overworks-n8n-nodes-mybox-0.2.0.tgz
+  npm install --omit=dev --ignore-scripts ./overworks-n8n-nodes-mybox-0.1.0.tgz
 
 docker compose restart n8n
 ```
