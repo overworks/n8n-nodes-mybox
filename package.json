@@ -1,0 +1,57 @@
+{
+	"name": "@overworks/n8n-nodes-mybox",
+	"version": "0.1.0",
+	"description": "n8n community node for NAVER MYBOX Open API",
+	"license": "MIT",
+	"homepage": "https://github.com/overworks/n8n-nodes-mybox#readme",
+	"keywords": [
+		"n8n-community-node-package",
+		"naver",
+		"mybox"
+	],
+	"author": {
+		"name": "Minhyung Park",
+		"email": "urlinee@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/overworks/n8n-nodes-mybox.git"
+	},
+	"bugs": {
+		"url": "https://github.com/overworks/n8n-nodes-mybox/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"format": "prettier --write credentials nodes package.json tsconfig.json eslint.config.mjs",
+		"prepack": "npm run build",
+		"prepublishOnly": "npm run lint"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/MyboxApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Mybox/Mybox.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.53.0",
+		"eslint": "9.39.4",
+		"prettier": "3.8.3",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}

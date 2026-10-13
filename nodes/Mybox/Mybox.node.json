@@ -1,0 +1,19 @@
+{
+	"node": "@overworks/n8n-nodes-mybox.mybox",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developers.mybox.naver.com/getting-started"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/overworks/n8n-nodes-mybox#readme"
+			}
+		]
+	},
+	"alias": ["NAVER", "MYBOX"]
+}
