@@ -220,3 +220,37 @@ test('transfer failures do not expose signed URLs or silently retry single-use r
 	assert.equal(JSON.stringify(result).includes('secret'), false);
 	assert.equal(h.transfers.length, 1);
 });
+
+test('cancelling before or during an upload aborts the transfer even with continue-on-fail', async () => {
+	const before = new AbortController();
+	const cancelled = uploader(
+		Buffer.from('test'),
+		{},
+		{
+			cancelSignal: before.signal,
+			continueOnFail: true,
+			api: async () => {
+				before.abort();
+				return { uploadUrl: 'https://storage.example.com/upload', offset: 0 };
+			},
+		},
+	);
+	await assert.rejects(cancelled.run(), /cancelled/);
+	assert.equal(cancelled.transfers.length, 0);
+	const during = new AbortController();
+	const active = uploader(
+		Buffer.from('test'),
+		{},
+		{
+			cancelSignal: during.signal,
+			continueOnFail: true,
+			request: async (options) => {
+				assert.equal(options.abortSignal, during.signal);
+				during.abort();
+				throw new Error('Transfer aborted');
+			},
+		},
+	);
+	await assert.rejects(active.run(), /cancelled/);
+	assert.equal(active.transfers.length, 1);
+});

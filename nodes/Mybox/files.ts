@@ -23,10 +23,17 @@ async function transfer(
 	context: IExecuteFunctions,
 	options: IHttpRequestOptions,
 ): Promise<unknown> {
+	const signal = context.getExecutionCancelSignal?.();
+	if (signal?.aborted) throw new NodeOperationError(context.getNode(), 'Execution was cancelled');
 	try {
 		// The URL carries its own authorization. Never attach the PAT to a storage request.
-		return await context.helpers.httpRequest({ timeout: 300000, ...options });
+		return await context.helpers.httpRequest({
+			timeout: 300000,
+			...options,
+			...(signal ? { abortSignal: signal } : {}),
+		});
 	} catch (error) {
+		if (signal?.aborted) throw new NodeOperationError(context.getNode(), 'Execution was cancelled');
 		const statusCode = httpStatus(error);
 		throw new NodeApiError(
 			context.getNode(),
@@ -189,7 +196,9 @@ export async function fileOperation(
 			// Stream errors may contain the signed request URL as well.
 			throw new NodeOperationError(
 				context.getNode(),
-				'The downloaded file could not be read or stored',
+				context.getExecutionCancelSignal?.()?.aborted
+					? 'Execution was cancelled'
+					: 'The downloaded file could not be read or stored',
 			);
 		}
 		return [
