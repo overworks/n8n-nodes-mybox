@@ -1,0 +1,29 @@
+{
+	"name": "MYBOX - Storage Check",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "da639fe8-7ff4-4c3f-894b-664b6de8db1a",
+			"name": "Manual Trigger",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [240, 300]
+		},
+		{
+			"parameters": { "resource": "storage", "operation": "get" },
+			"id": "176c57f4-15f9-4a73-a9ca-087c1992154b",
+			"name": "MYBOX Storage",
+			"type": "@overworks/n8n-nodes-mybox.mybox",
+			"typeVersion": 1,
+			"position": [480, 300]
+		}
+	],
+	"connections": {
+		"Manual Trigger": {
+			"main": [[{ "node": "MYBOX Storage", "type": "main", "index": 0 }]]
+		}
+	},
+	"active": false,
+	"settings": { "executionOrder": "v1" },
+	"pinData": {}
+}

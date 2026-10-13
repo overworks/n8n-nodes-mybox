@@ -1,8 +1,8 @@
 # @overworks/n8n-nodes-mybox
 
-NAVER MYBOX Open API를 사용하는 n8n 커뮤니티 노드입니다.
+NAVER MYBOX Open API를 사용하는 n8n 커뮤니티 노드입니다. 공식 문서의 20개 API 엔드포인트와 n8n binary 파일 전송을 구현했습니다.
 
-현재 초기 개발 단계이며 npm에 배포되지 않았습니다. 기능 구현과 실제 계정 테스트를 진행한 뒤 GitHub 저장소를 공개하고 npm에 등록할 예정입니다. n8n 커뮤니티 노드 검증 신청은 첫 배포 이후 진행합니다.
+현재 개발판이며 npm에 배포되지 않았습니다. 실제 계정 테스트 후 GitHub 저장소를 공개하고 npm에 등록할 예정입니다. n8n 커뮤니티 노드 검증 신청은 첫 배포 이후 진행합니다.
 
 ## 구현된 기능
 
@@ -37,32 +37,61 @@ Upload는 입력 파일을 메모리에 읽고 multipart 요청을 구성합니�
 
 자세한 발급 방법과 제한은 [MYBOX Open API 시작하기](https://developers.mybox.naver.com/getting-started)를 참고하세요.
 
-## 로컬 개발
+## 사용 시 참고 사항
+
+- 파일·폴더 ID는 목록이나 검색 응답의 `resourceId`를 그대로 사용합니다.
+- 목록 조회의 Folder ID, 폴더 생성·업로드·복사의 Parent Folder ID를 비우면 루트를 사용합니다. **Move는 목적지 폴더 ID가 필수**입니다.
+- 파일명에는 확장자를 포함합니다. Upload의 File Name을 비우면 입력 binary 데이터의 파일명을 사용합니다. **Input Data Field Name**의 기본값은 `data`입니다.
+- Download는 스트림을 n8n binary helper에 전달합니다. **Put Output File in Field**의 기본값은 `data`이며, 다른 입력 binary 필드는 유지합니다.
+- 검색에는 검색어, 날짜 조건, 파일 종류 중 하나 이상이 필요합니다. 폴더는 Exact Path만으로 검색할 수 있으며, 이 값이 있으면 다른 검색 조건은 적용되지 않습니다.
+- 복사·이동·업로드·복원의 Overwrite는 기본적으로 꺼져 있습니다.
+- Move to Trash는 복원 가능한 삭제입니다. Trash의 Permanently Delete와 Empty는 영구 삭제이며, Empty는 계정의 휴지통 전체에 적용됩니다.
+- 업로드 URL은 48시간 유효하고 업로드 후 재사용할 수 없습니다. 다운로드 URL은 10분간 유효한 일회용 URL입니다. URL 발급 작업의 출력에는 이 인증 URL이 포함됩니다. [업로드 API](https://developers.mybox.naver.com/docs/files_upload), [다운로드 API](https://developers.mybox.naver.com/docs/files_download)
+
+## 개발 및 자동화 테스트
 
 공식 `@n8n/node-cli`의 programmatic 템플릿 구성을 사용합니다.
 
 ```sh
 npm ci --ignore-scripts
-npm run build
-npm run lint
 npm test
-npm run dev
+npm run lint
+npm pack
 ```
 
-`npm run dev`는 개발용 n8n을 실행하고 노드 변경을 반영합니다. 개발 서버 요구 사항은 [n8n 공식 CLI 문서](https://docs.n8n.io/integrations/creating-nodes/build/n8n-node/)를 참고하세요.
+`npm test`는 TypeScript를 빌드하고 API 계약, 페이지네이션, binary 전송 구조, 입력란 표시·기본값, 오류·재시도·취소 처리를 검사합니다. 테스트의 HTTP 응답은 모의 데이터이며 실제 MYBOX 계정에 접근하지 않습니다. `npm pack`은 빌드 후 설치용 `.tgz`를 생성합니다.
 
-n8n에서 **Manual Trigger → NAVER MYBOX** 워크플로를 만들고, Credential을 연결한 뒤 **Storage → Get**을 실행하면 저장공간 정보를 확인할 수 있습니다. 실제 MYBOX 계정으로 실행하려면 유효한 PAT가 필요합니다.
+개발 서버가 필요한 경우 `npm run dev`도 사용할 수 있습니다. [공식 개발 CLI 문서](https://docs.n8n.io/integrations/creating-nodes/build/n8n-node/)
 
-배포 파일 구성은 다음 명령으로 확인할 수 있습니다.
+## 기존 Docker n8n에서 테스트
+
+npm 공개 없이 `.tgz` 파일을 기존 자체 호스팅 n8n에 설치할 수 있습니다. 다음은 공식 이미지, Compose 서비스 이름 `n8n`, 영구 데이터 경로 `/home/node/.n8n`을 사용하는 경우입니다. 패키지 파일을 서버의 Compose 프로젝트 폴더에 옮긴 뒤 실행합니다.
 
 ```sh
-npm pack --dry-run
+docker compose exec -u node n8n mkdir -p /home/node/.n8n/nodes
+
+docker compose cp overworks-n8n-nodes-mybox-0.2.0.tgz \
+  n8n:/home/node/.n8n/nodes/
+
+docker compose exec -u node -w /home/node/.n8n/nodes n8n \
+  npm install --omit=dev --ignore-scripts ./overworks-n8n-nodes-mybox-0.2.0.tgz
+
+docker compose restart n8n
 ```
+
+실제 서비스 이름과 데이터 경로에 맞게 명령을 조정하세요. `/home/node/.n8n`을 영구 볼륨으로 유지하면 패키지도 컨테이너 재생성 후 유지됩니다. Queue 모드에서는 실행을 담당하는 워커에서도 같은 패키지를 사용할 수 있어야 합니다. [n8n 수동 설치](https://docs.n8n.io/integrations/community-nodes/installation/manual-install/)
+
+1. [저장공간 조회 예제](examples/storage-check.json)를 n8n에 가져옵니다.
+2. NAVER MYBOX 노드에 자신의 PAT Credential을 연결합니다.
+3. 수동 실행 후 `quotaBytes`, `usedBytes`, `fileCounts` 등의 출력을 확인합니다.
+4. 목록·검색을 확인한 뒤 전용 테스트 폴더에서 작은 파일의 업로드·다운로드, 복사·이동·이름 변경, 휴지통 이동·복원을 확인합니다.
+
+실제 PAT, 서비스 응답, 파일 전송 동작에 대한 통합 테스트는 아직 완료하지 않았습니다.
 
 ## 배포 계획
 
-1. 비공개 저장소에서 기능 구현 및 로컬 테스트
-2. 실제 MYBOX 계정으로 주요 기능 검증
+1. 비공개 저장소에서 기능 구현 및 자동화 테스트
+2. 기존 자체 호스팅 n8n과 실제 MYBOX 계정으로 통합 테스트
 3. GitHub 저장소 공개
 4. `@overworks/n8n-nodes-mybox`를 공개 npm 패키지로 배포
 5. n8n 커뮤니티 노드 검증 신청
