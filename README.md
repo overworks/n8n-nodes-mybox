@@ -12,10 +12,12 @@ NAVER MYBOX Open API를 사용하는 n8n 커뮤니티 노드입니다.
 - **File / Folder → Search**: 검색어·종류·날짜·폴더 경로 검색
 - **File → Upload / Download**: n8n binary 데이터 업로드 및 스트림 다운로드
 - **File → Get Upload URL / Get Download URL**: 전송 URL 발급, 이어올리기용 URL·offset 발급
+- **Folder → Create**: 루트 또는 특정 상위 폴더 아래에 폴더 생성
+- **File or Folder → Copy / Move / Rename / Move to Trash / Favorite / Unfavorite**: 파일·폴더 관리
 - 목록과 검색의 커서 페이지네이션, Return All 및 Limit 지원
 - 입력 아이템별 실행, 출력 아이템 연결, n8n의 오류 발생 시 계속 실행 설정 지원
 
-폴더 생성, 파일 관리 및 휴지통 작업은 후속 구현 대상입니다.
+휴지통 관리와 자동 삭제 주기 설정은 후속 구현 대상입니다.
 
 Upload는 입력 파일을 메모리에 읽고 multipart 요청을 구성합니다. 대용량 파일은 n8n의 가용 메모리를 고려해야 합니다. 이어올리기는 Get Upload URL에서 URL과 offset을 발급받는 범위까지 제공하며, 중단된 전송의 자동 재개는 지원하지 않습니다. 업로드 서버의 응답은 `uploadResponse`에 반환합니다.
 

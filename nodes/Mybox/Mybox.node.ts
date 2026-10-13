@@ -9,6 +9,7 @@ import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workf
 import { properties } from './descriptions';
 import { readOperation } from './read';
 import { fileOperation } from './files';
+import { managementOperation } from './manage';
 
 export class Mybox implements INodeType {
 	description: INodeTypeDescription = {
@@ -45,7 +46,8 @@ export class Mybox implements INodeType {
 
 				const result =
 					(await readOperation(this, resource, operation, itemIndex)) ??
-					(resource === 'file' ? await fileOperation(this, operation, itemIndex) : undefined);
+					(resource === 'file' ? await fileOperation(this, operation, itemIndex) : undefined) ??
+					(await managementOperation(this, resource, operation, itemIndex));
 				if (result === undefined) {
 					throw new NodeOperationError(this.getNode(), 'This operation is not supported', {
 						itemIndex,

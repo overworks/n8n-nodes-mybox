@@ -1,5 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { fileProperties } from './fileDescriptions';
+import { managementProperties } from './managementDescriptions';
 
 const dateFilters: INodeProperties[] = [
 	{
@@ -40,6 +41,7 @@ export const properties: INodeProperties[] = [
 		default: 'storage',
 	},
 	...fileProperties,
+	...managementProperties,
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -64,6 +66,18 @@ export const properties: INodeProperties[] = [
 		displayOptions: { show: { resource: ['fileFolder'] } },
 		options: [
 			{
+				name: 'Copy',
+				value: 'copy',
+				description: 'Copy a file or folder',
+				action: 'Copy a file or folder',
+			},
+			{
+				name: 'Favorite',
+				value: 'favorite',
+				description: 'Mark a file or folder as a favorite',
+				action: 'Favorite a file or folder',
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				description: 'Get file or folder properties',
@@ -74,6 +88,30 @@ export const properties: INodeProperties[] = [
 				value: 'getMany',
 				description: 'List files and folders',
 				action: 'Get many files and folders',
+			},
+			{
+				name: 'Move',
+				value: 'move',
+				description: 'Move a file or folder',
+				action: 'Move a file or folder',
+			},
+			{
+				name: 'Move to Trash',
+				value: 'delete',
+				description: 'Delete a file or folder by moving it to the trash',
+				action: 'Move a file or folder to trash',
+			},
+			{
+				name: 'Rename',
+				value: 'rename',
+				description: 'Rename a file or folder',
+				action: 'Rename a file or folder',
+			},
+			{
+				name: 'Unfavorite',
+				value: 'unfavorite',
+				description: 'Remove a file or folder from favorites',
+				action: 'Unfavorite a file or folder',
 			},
 		],
 		default: 'getMany',
@@ -86,10 +124,16 @@ export const properties: INodeProperties[] = [
 		displayOptions: { show: { resource: ['folder'] } },
 		options: [
 			{
+				name: 'Create',
+				value: 'create',
+				description: 'Create a folder',
+				action: 'Create a folder',
+			},
+			{
 				name: 'Search',
 				value: 'search',
 				description: 'Search by name, path, or date',
-				action: 'Search files or folders',
+				action: 'Search folders',
 			},
 		],
 		default: 'search',
@@ -100,7 +144,12 @@ export const properties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
-		displayOptions: { show: { resource: ['fileFolder'], operation: ['get'] } },
+		displayOptions: {
+			show: {
+				resource: ['fileFolder'],
+				operation: ['copy', 'delete', 'favorite', 'get', 'move', 'rename', 'unfavorite'],
+			},
+		},
 		description: 'The ID returned by a list or search operation',
 	},
 	{
