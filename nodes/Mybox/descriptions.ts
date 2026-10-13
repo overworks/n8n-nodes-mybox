@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { fileProperties } from './fileDescriptions';
 
 const dateFilters: INodeProperties[] = [
 	{
@@ -38,6 +39,7 @@ export const properties: INodeProperties[] = [
 		],
 		default: 'storage',
 	},
+	...fileProperties,
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -81,7 +83,7 @@ export const properties: INodeProperties[] = [
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: { show: { resource: ['file', 'folder'] } },
+		displayOptions: { show: { resource: ['folder'] } },
 		options: [
 			{
 				name: 'Search',
